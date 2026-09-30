@@ -18,7 +18,7 @@ API REST para registrar postulaciones de candidatos a vacantes, consultarlas y c
 8. [Estructura del proyecto](#8-estructura-del-proyecto)
 9. [Decisiones técnicas](#9-decisiones-técnicas)
 10. [Fuera de alcance (MVP)](#10-fuera-de-alcance-mvp)
-
+11. Uso de IA en el desarrollo. 
 ---
 
 ## 1. Requisitos
@@ -432,3 +432,7 @@ Cada petición recorre las capas en orden: **ruta → controlador → validador 
 - Autenticación y roles (reclutador vs. candidato).
 - Paginación del listado, frontend y despliegue.
 - Historial de cambios de estado en una tabla aparte.
+
+## 11. Uso de IA en el Desarrollo
+https://claude.ai/share/3abd17af-6fda-4965-81cf-8daaa2487af8
+
