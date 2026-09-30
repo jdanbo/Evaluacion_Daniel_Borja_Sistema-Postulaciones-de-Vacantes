@@ -1,0 +1,148 @@
+### Variables
+# Cambia el puerto si en tu .env usas otro
+@baseUrl = http://localhost:3000
+
+### Comprobar que la API está viva
+GET {{baseUrl}}/health
+
+###############################################################
+# POST /applications — Registrar una postulación
+###############################################################
+
+### 1. Caso del enunciado → 201, puntaje 9, TOP
+POST {{baseUrl}}/applications
+Content-Type: application/json
+
+{
+  "candidateId": 3,
+  "vacancyId": 1,
+  "source": "REFERRAL",
+  "coverLetter": "I have four years of experience building REST APIs with Node.js and SQL databases"
+}
+
+### 2. Repetir la anterior → 409 DUPLICATE_APPLICATION (ya tiene una activa)
+POST {{baseUrl}}/applications
+Content-Type: application/json
+
+{
+  "candidateId": 3,
+  "vacancyId": 1,
+  "source": "REFERRAL",
+  "coverLetter": "Segunda postulación a la misma vacante"
+}
+
+### 3. José tiene 3 postulaciones activas → penalización -2 (puntaje 2, LOW)
+POST {{baseUrl}}/applications
+Content-Type: application/json
+
+{
+  "candidateId": 4,
+  "vacancyId": 4,
+  "source": "JOB_BOARD",
+  "coverLetter": "Me gusta probar software y encontrar errores."
+}
+
+### 4. Carlos fue rechazado hace 45 días → 201 (ya puede volver a postularse)
+POST {{baseUrl}}/applications
+Content-Type: application/json
+
+{
+  "candidateId": 2,
+  "vacancyId": 1,
+  "source": "INTERNAL",
+  "coverLetter": "Sigo aprendiendo Node.js y quiero una nueva oportunidad."
+}
+
+### 5. Ana fue rechazada hace 10 días → 409 con canReapplyAt
+POST {{baseUrl}}/applications
+Content-Type: application/json
+
+{
+  "candidateId": 1,
+  "vacancyId": 2,
+  "source": "INTERNAL",
+  "coverLetter": "Quiero volver a intentarlo, domino SQL."
+}
+
+### 6. Vacante cerrada → 409 VACANCY_NOT_OPEN
+POST {{baseUrl}}/applications
+Content-Type: application/json
+
+{
+  "candidateId": 1,
+  "vacancyId": 5,
+  "source": "OTHER",
+  "coverLetter": "Tengo experiencia en DevOps."
+}
+
+### 7. Candidato inexistente → 404 CANDIDATE_NOT_FOUND
+POST {{baseUrl}}/applications
+Content-Type: application/json
+
+{
+  "candidateId": 99,
+  "vacancyId": 1,
+  "source": "OTHER",
+  "coverLetter": "Hola"
+}
+
+### 8. Varios datos inválidos → 400 con todos los errores juntos
+POST {{baseUrl}}/applications
+Content-Type: application/json
+
+{
+  "candidateId": "3",
+  "vacancyId": -1,
+  "source": "LINKEDIN",
+  "coverLetter": "   "
+}
+
+###############################################################
+# GET /applications — Consultar postulaciones
+###############################################################
+
+### Todas, ordenadas por puntaje (y por antigüedad en empate)
+GET {{baseUrl}}/applications
+
+### Filtrar por estado
+GET {{baseUrl}}/applications?status=IN_REVIEW
+
+### Filtrar por estado y vacante
+GET {{baseUrl}}/applications?status=RECEIVED&vacancyId=1
+
+### Estado inválido → 400
+GET {{baseUrl}}/applications?status=PENDING
+
+###############################################################
+# PUT /applications/:id/status — Cambiar el estado
+###############################################################
+
+### RECEIVED → IN_REVIEW → 200, changed: true
+PUT {{baseUrl}}/applications/1/status
+Content-Type: application/json
+
+{ "status": "IN_REVIEW" }
+
+### Mismo estado → 200, changed: false (no se modifica nada)
+PUT {{baseUrl}}/applications/1/status
+Content-Type: application/json
+
+{ "status": "IN_REVIEW" }
+
+### Retroceso permitido entre estados activos → 200
+PUT {{baseUrl}}/applications/1/status
+Content-Type: application/json
+
+{ "status": "RECEIVED" }
+
+### Postulación en estado final (REJECTED) → 409 APPLICATION_IN_FINAL_STATE
+PUT {{baseUrl}}/applications/5/status
+Content-Type: application/json
+
+{ "status": "RECEIVED" }
+
+### Postulación inexistente → 404 APPLICATION_NOT_FOUND
+PUT {{baseUrl}}/applications/999/status
+Content-Type: application/json
+
+{ "status": "IN_REVIEW" }
