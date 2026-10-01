@@ -1,0 +1,14 @@
+# Dependencias (se reinstalan con npm install)
+node_modules/
+
+# Variables de entorno con credenciales reales: NUNCA se suben
+.env
+
+# Archivos del sistema y del editor
+.DS_Store
+Thumbs.db
+.vscode/
+
+# Logs
+npm-debug.log*
+*.log
